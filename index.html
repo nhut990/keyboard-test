@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⌨️ Test bàn phím - Created by Minh Nhựt</title>
+    <title>⌨️ Test bàn phím & chuột - Created by Minh Nhựt</title>
     <style>
         * {
             box-sizing: border-box;
@@ -18,6 +18,7 @@
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             margin: 0;
             padding: 20px;
+            overflow: hidden; /* Chặn cuộn toàn trang */
         }
         .keyboard {
             background: #2d3f4f;
@@ -26,6 +27,19 @@
             box-shadow: 0 25px 35px rgba(0,0,0,0.7), inset 0 1px 4px #90a4b8;
             max-width: 1200px;
             width: 100%;
+            max-height: 95vh;
+            overflow-y: auto; /* Cho phép cuộn trong keyboard nếu cần */
+        }
+        .keyboard::-webkit-scrollbar {
+            width: 8px;
+        }
+        .keyboard::-webkit-scrollbar-track {
+            background: #1e2b37;
+            border-radius: 10px;
+        }
+        .keyboard::-webkit-scrollbar-thumb {
+            background: #27ae60;
+            border-radius: 10px;
         }
         .row {
             display: flex;
@@ -118,16 +132,70 @@
             padding: 12px;
             margin-top: 10px;
         }
+        
+        /* Khu vực test chuột - bố cục mới */
+        .mouse-test-area {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            padding: 12px;
+            background: #253544;
+            border-radius: 30px;
+            border-bottom: 3px solid #27ae60;
+            box-shadow: 0 5px 0 #0f1a21;
+        }
+        .mouse-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .mouse-row:last-child {
+            margin-bottom: 0;
+        }
+        .mouse-btn {
+            background: #1e2b37;
+            color: #ecf0f3;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 0 #0f1a21;
+            border-bottom: 2px solid #3b4e5e;
+            min-width: 100px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.06s;
+            cursor: default;
+        }
+        .mouse-btn .btn-icon {
+            font-size: 18px;
+        }
+        .mouse-btn.active {
+            background: #27ae60 !important;
+            box-shadow: 0 2px 0 #1d7843;
+            border-bottom-color: #58d68d;
+            transform: translateY(2px);
+        }
+        .mouse-btn.pressed {
+            background: #c0392b !important;
+            box-shadow: 0 2px 0 #962d22;
+            border-bottom-color: #e74c3c;
+            transform: translateY(2px);
+        }
+        
         .footer {
             text-align: center;
             color: #ecf0f3;
-            margin-top: 25px;
-            font-size: 18px;
+            margin-top: 10px;
+            font-size: 16px;
             font-weight: 500;
             letter-spacing: 1px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             background: linear-gradient(145deg, #2d3f4f, #1e2f3b);
-            padding: 10px;
+            padding: 8px;
             border-radius: 30px;
             border-bottom: 3px solid #27ae60;
             box-shadow: 0 5px 0 #0f1a21;
@@ -242,6 +310,37 @@
                 <div class="key" data-key="ContextMenu">Menu</div>
                 <div class="key" data-key="ControlRight">Ctrl</div>
             </div>
+
+            <!-- Khu vực test chuột - bố cục mới: cuộn lên/xuống nằm dưới 3 nút chính -->
+            <div class="mouse-test-area">
+                <!-- Hàng trên: 3 nút trái, giữa, phải -->
+                <div class="mouse-row">
+                    <div class="mouse-btn" id="mouse-left">
+                        <span class="btn-icon">🖱️</span>
+                        <span>Trái</span>
+                    </div>
+                    <div class="mouse-btn" id="mouse-middle">
+                        <span class="btn-icon">⚫</span>
+                        <span>Giữa</span>
+                    </div>
+                    <div class="mouse-btn" id="mouse-right">
+                        <span class="btn-icon">🖱️</span>
+                        <span>Phải</span>
+                    </div>
+                </div>
+                
+                <!-- Hàng dưới: 2 nút cuộn lên, cuộn xuống -->
+                <div class="mouse-row">
+                    <div class="mouse-btn" id="scroll-up">
+                        <span class="btn-icon">⬆️</span>
+                        <span>Cuộn lên</span>
+                    </div>
+                    <div class="mouse-btn" id="scroll-down">
+                        <span class="btn-icon">⬇️</span>
+                        <span>Cuộn xuống</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Phần bên phải: keypad số và điều hướng -->
@@ -320,7 +419,13 @@
 
 <script>
 (function() {
-    // CHẶN TUYỆT ĐỐI MỌI PHÍM CHỨC NĂNG
+    // CHẶN CUỘN TRÌNH DUYỆT HOÀN TOÀN
+    window.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false, capture: true });
+    
+    // Chặn cuộn bằng bàn phím (PageUp/Down, mũi tên...)
     window.addEventListener('keydown', function(e) {
         const key = e.key;
         const code = e.code;
@@ -335,7 +440,7 @@
             'Alt', 'AltLeft', 'AltRight', 'Control', 'ControlLeft', 'ControlRight',
             'Shift', 'ShiftLeft', 'ShiftRight', 'CapsLock', 'Tab', 'Escape',
             
-            // Phím điều hướng
+            // Phím điều hướng (chặn cuộn)
             'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
             'PageUp', 'PageDown', 'Home', 'End', 'Insert', 'Delete',
             'PrintScreen', 'ScrollLock', 'Pause', 'NumLock',
@@ -403,7 +508,7 @@
         
         // Xử lý các phím thông thường
         handleKeyDown(code, key);
-    }, true);
+    }, { capture: true });
 
     // Xử lý keyup cho PrtSc
     window.addEventListener('keyup', function(e) {
@@ -436,7 +541,7 @@
         
         e.preventDefault();
         e.stopPropagation();
-    }, true);
+    }, { capture: true });
 
     // Map lưu trạng thái phím đang giữ
     const pressedStates = new Map();
@@ -509,6 +614,105 @@
         });
     }
 
+    // XỬ LÝ SỰ KIỆN CHUỘT
+    const mouseLeft = document.getElementById('mouse-left');
+    const mouseMiddle = document.getElementById('mouse-middle');
+    const mouseRight = document.getElementById('mouse-right');
+    const scrollUp = document.getElementById('scroll-up');
+    const scrollDown = document.getElementById('scroll-down');
+    
+    // Xử lý mouse down
+    document.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        
+        // Xác định nút chuột được nhấn
+        switch(e.button) {
+            case 0: // Left click
+                if (mouseLeft) {
+                    mouseLeft.classList.remove('active');
+                    mouseLeft.classList.add('pressed');
+                    playClick();
+                }
+                break;
+            case 1: // Middle click
+                if (mouseMiddle) {
+                    mouseMiddle.classList.remove('active');
+                    mouseMiddle.classList.add('pressed');
+                    playClick();
+                }
+                break;
+            case 2: // Right click
+                if (mouseRight) {
+                    mouseRight.classList.remove('active');
+                    mouseRight.classList.add('pressed');
+                    playClick();
+                }
+                break;
+        }
+    });
+    
+    // Xử lý mouse up
+    document.addEventListener('mouseup', function(e) {
+        e.preventDefault();
+        
+        switch(e.button) {
+            case 0:
+                if (mouseLeft) {
+                    mouseLeft.classList.remove('pressed');
+                    mouseLeft.classList.add('active');
+                }
+                break;
+            case 1:
+                if (mouseMiddle) {
+                    mouseMiddle.classList.remove('pressed');
+                    mouseMiddle.classList.add('active');
+                }
+                break;
+            case 2:
+                if (mouseRight) {
+                    mouseRight.classList.remove('pressed');
+                    mouseRight.classList.add('active');
+                }
+                break;
+        }
+    });
+    
+    // Xử lý scroll wheel (đã chặn ở trên, giờ chỉ xử lý hiệu ứng)
+    window.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (e.deltaY < 0) { // Scroll up
+            if (scrollUp) {
+                scrollUp.classList.remove('active');
+                scrollUp.classList.add('pressed');
+                playClick();
+                
+                // Tự động bỏ pressed sau 150ms
+                setTimeout(() => {
+                    scrollUp.classList.remove('pressed');
+                    scrollUp.classList.add('active');
+                }, 150);
+            }
+        } else { // Scroll down
+            if (scrollDown) {
+                scrollDown.classList.remove('active');
+                scrollDown.classList.add('pressed');
+                playClick();
+                
+                setTimeout(() => {
+                    scrollDown.classList.remove('pressed');
+                    scrollDown.classList.add('active');
+                }, 150);
+            }
+        }
+    }, { passive: false, capture: true });
+    
+    // Ngăn context menu chuột phải
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
     // Audio
     let audioCtx = null;
     function playClick() {
@@ -534,26 +738,15 @@
         } catch (e) {}
     }
 
-    // Vô hiệu hóa click chuột
+    // Vô hiệu hóa click chuột trên phím
     document.querySelectorAll('.key').forEach(el => {
         el.onclick = null;
     });
     
     // Double click để reset
-    document.querySelectorAll('.key').forEach(el => {
+    document.querySelectorAll('.key, .mouse-btn').forEach(el => {
         el.addEventListener('dblclick', function() {
-            const code = this.dataset.key;
-            if (code && codeMap.has(code)) {
-                codeMap.get(code).forEach(k => {
-                    k.classList.remove('active', 'pressed');
-                });
-            } else {
-                this.classList.remove('active', 'pressed');
-            }
-            
-            if (this.id === 'prtsc-key') {
-                pressedStates.delete('prtsc');
-            }
+            this.classList.remove('active', 'pressed');
         });
     });
 
