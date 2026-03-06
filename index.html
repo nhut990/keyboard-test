@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⌨️ Test bàn phím - Fix lỗi PrtSc - Đầy đủ phím</title>
+    <title>⌨️ Test bàn phím - Created by Minh Nhựt</title>
     <style>
         * {
             box-sizing: border-box;
@@ -118,16 +118,23 @@
             padding: 12px;
             margin-top: 10px;
         }
-        .info {
+        .footer {
             text-align: center;
-            color: #9fb3c9;
-            margin-top: 20px;
-            font-style: italic;
-            font-size: 14px;
-            background: rgba(0,0,0,0.2);
-            padding: 8px;
+            color: #ecf0f3;
+            margin-top: 25px;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(145deg, #2d3f4f, #1e2f3b);
+            padding: 10px;
             border-radius: 30px;
-            clear: both;
+            border-bottom: 3px solid #27ae60;
+            box-shadow: 0 5px 0 #0f1a21;
+        }
+        .footer span {
+            color: #27ae60;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -239,9 +246,9 @@
 
         <!-- Phần bên phải: keypad số và điều hướng -->
         <div class="right-section">
-            <!-- Nhóm PrtSc/ScrLk/Pause - FIX: thêm nhiều data-key cho PrtSc -->
+            <!-- Nhóm PrtSc/ScrLk/Pause -->
             <div class="row" style="margin-bottom: 6px;">
-                <div class="key small" data-key="PrintScreen" data-key2="Print" data-key3="Snapshot" style="position: relative;">PrtSc</div>
+                <div class="key small" id="prtsc-key" data-key="PrintScreen" data-altkeys="Print,Snapshot,PrtSc">PrtSc</div>
                 <div class="key small" data-key="ScrollLock">ScrLk</div>
                 <div class="key small" data-key="Pause">Pause</div>
             </div>
@@ -305,8 +312,9 @@
         </div>
     </div>
 
-    <div class="info">
-        🔴 Nhấn giữ = đỏ, thả = xanh • Đã fix lỗi PrtSc • Đầy đủ phím
+    <!-- Footer với tên người tạo -->
+    <div class="footer">
+        Created by <span>Minh Nhựt</span>
     </div>
 </div>
 
@@ -363,21 +371,69 @@
             e.stopPropagation();
         }
         
-        // Chặn PrintScreen với nhiều tên khác nhau
-        if (code === 'PrintScreen' || key === 'PrintScreen' || key === 'Print' || key === 'Snapshot' || code === 'Print') {
+        // XỬ LÝ ĐẶC BIỆT CHO PRTSC
+        const prtScKey = document.getElementById('prtsc-key');
+        
+        // Kiểm tra nếu là phím PrtSc
+        if (code === 'PrintScreen' || 
+            code === 'Print' || 
+            key === 'PrintScreen' || 
+            key === 'Print' || 
+            key === 'Snapshot' || 
+            key === 'PrtSc' ||
+            key === 'PrntScrn' ||
+            key === 'Print Screen' ||
+            (code === '' && key === 'Unidentified') ||
+            e.keyCode === 44 ||
+            e.which === 44) {
+            
             e.preventDefault();
             e.stopPropagation();
+            
+            // Active phím PrtSc
+            if (prtScKey) {
+                if (!pressedStates.has('prtsc')) {
+                    pressedStates.set('prtsc', true);
+                    prtScKey.classList.remove('active');
+                    prtScKey.classList.add('pressed');
+                    playClick();
+                }
+            }
         }
         
-        // LUÔN xử lý màu sắc
+        // Xử lý các phím thông thường
         handleKeyDown(code, key);
     }, true);
 
-    // Xử lý keyup
+    // Xử lý keyup cho PrtSc
     window.addEventListener('keyup', function(e) {
-        const code = e.code;
         const key = e.key;
+        const code = e.code;
+        
+        // Xử lý PrtSc keyup
+        const prtScKey = document.getElementById('prtsc-key');
+        
+        if (code === 'PrintScreen' || 
+            code === 'Print' || 
+            key === 'PrintScreen' || 
+            key === 'Print' || 
+            key === 'Snapshot' || 
+            key === 'PrtSc' ||
+            e.keyCode === 44) {
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (prtScKey) {
+                pressedStates.delete('prtsc');
+                prtScKey.classList.remove('pressed');
+                prtScKey.classList.add('active');
+            }
+        }
+        
+        // Xử lý các phím thông thường
         handleKeyUp(code, key);
+        
         e.preventDefault();
         e.stopPropagation();
     }, true);
@@ -385,92 +441,68 @@
     // Map lưu trạng thái phím đang giữ
     const pressedStates = new Map();
     
-    // Map code -> elements (mở rộng để hỗ trợ nhiều tên)
+    // Map code -> elements
     const codeMap = new Map();
-    const keyMap = new Map(); // map theo tên phím (key)
+    const keyMap = new Map();
     
     document.querySelectorAll('.key[data-key]').forEach(el => {
-        // Map theo data-key chính
         const code = el.dataset.key;
         if (!codeMap.has(code)) codeMap.set(code, []);
         codeMap.get(code).push(el);
         
-        // Nếu có data-key2, data-key3 thì map thêm
-        if (el.dataset.key2) {
-            if (!keyMap.has(el.dataset.key2)) keyMap.set(el.dataset.key2, []);
-            keyMap.get(el.dataset.key2).push(el);
-        }
-        if (el.dataset.key3) {
-            if (!keyMap.has(el.dataset.key3)) keyMap.set(el.dataset.key3, []);
-            keyMap.get(el.dataset.key3).push(el);
+        if (el.dataset.altkeys) {
+            const altKeys = el.dataset.altkeys.split(',');
+            altKeys.forEach(altKey => {
+                if (!keyMap.has(altKey)) keyMap.set(altKey, []);
+                keyMap.get(altKey).push(el);
+            });
         }
     });
 
-    // Xử lý keydown
+    // Xử lý keydown cho các phím thường
     function handleKeyDown(code, key) {
         let targets = [];
         
-        // Tìm theo code trước
         if (code && codeMap.has(code)) {
             targets = codeMap.get(code);
         }
-        // Nếu không tìm thấy theo code, thử tìm theo key
         else if (key && keyMap.has(key)) {
             targets = keyMap.get(key);
-        }
-        // Đặc biệt cho PrtSc
-        else if (key === 'PrintScreen' || key === 'Print' || key === 'Snapshot' || code === 'Print') {
-            // Tìm element có data-key="PrintScreen"
-            const prtScEl = document.querySelector('[data-key="PrintScreen"]');
-            if (prtScEl) targets = [prtScEl];
         }
         
         if (!targets || targets.length === 0) return;
         
-        // Kiểm tra nếu phím đang được giữ (dùng code hoặc key làm id)
         const id = code || key;
         if (pressedStates.has(id)) {
             return;
         }
         
-        // Đánh dấu phím đang được giữ
         pressedStates.set(id, true);
         
-        // Chuyển sang màu đỏ (pressed)
         targets.forEach(el => {
             el.classList.remove('active');
             el.classList.add('pressed');
         });
         
-        // Phát âm thanh
         playClick();
     }
     
-    // Xử lý keyup
+    // Xử lý keyup cho các phím thường
     function handleKeyUp(code, key) {
         let targets = [];
         
-        // Tìm theo code trước
         if (code && codeMap.has(code)) {
             targets = codeMap.get(code);
         }
-        // Nếu không tìm thấy theo code, thử tìm theo key
         else if (key && keyMap.has(key)) {
             targets = keyMap.get(key);
-        }
-        // Đặc biệt cho PrtSc
-        else if (key === 'PrintScreen' || key === 'Print' || key === 'Snapshot' || code === 'Print') {
-            const prtScEl = document.querySelector('[data-key="PrintScreen"]');
-            if (prtScEl) targets = [prtScEl];
         }
         
         if (!targets || targets.length === 0) return;
         
-        // Xóa khỏi map đang giữ
         const id = code || key;
         pressedStates.delete(id);
         
-        // Chuyển từ đỏ -> xanh (active)
         targets.forEach(el => {
             el.classList.remove('pressed');
             el.classList.add('active');
@@ -517,6 +549,10 @@
                 });
             } else {
                 this.classList.remove('active', 'pressed');
+            }
+            
+            if (this.id === 'prtsc-key') {
+                pressedStates.delete('prtsc');
             }
         });
     });
