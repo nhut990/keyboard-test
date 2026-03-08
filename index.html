@@ -18,7 +18,7 @@
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             margin: 0;
             padding: 20px;
-            overflow: hidden; /* Chặn cuộn toàn trang */
+            overflow: hidden;
         }
         .keyboard {
             background: #2d3f4f;
@@ -28,7 +28,7 @@
             max-width: 1200px;
             width: 100%;
             max-height: 95vh;
-            overflow-y: auto; /* Cho phép cuộn trong keyboard nếu cần */
+            overflow-y: auto;
         }
         .keyboard::-webkit-scrollbar {
             width: 8px;
@@ -133,16 +133,35 @@
             margin-top: 10px;
         }
         
-        /* Khu vực test chuột - bố cục mới */
-        .mouse-test-area {
+        /* Khu vực test chuột và điều hướng - bố cục mới */
+        .mouse-nav-container {
+            display: flex;
+            gap: 10px;
             margin-top: 15px;
             margin-bottom: 10px;
+        }
+        
+        .mouse-test-area {
+            flex: 2;
             padding: 12px;
             background: #253544;
             border-radius: 30px;
             border-bottom: 3px solid #27ae60;
             box-shadow: 0 5px 0 #0f1a21;
         }
+        
+        .nav-pad-compact {
+            flex: 1;
+            background: #253544;
+            border-radius: 20px;
+            padding: 12px;
+            border-bottom: 3px solid #27ae60;
+            box-shadow: 0 5px 0 #0f1a21;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
         .mouse-row {
             display: flex;
             gap: 10px;
@@ -311,39 +330,54 @@
                 <div class="key" data-key="ControlRight">Ctrl</div>
             </div>
 
-            <!-- Khu vực test chuột - bố cục mới: cuộn lên/xuống nằm dưới 3 nút chính -->
-            <div class="mouse-test-area">
-                <!-- Hàng trên: 3 nút trái, giữa, phải -->
-                <div class="mouse-row">
-                    <div class="mouse-btn" id="mouse-left">
-                        <span class="btn-icon">🖱️</span>
-                        <span>Trái</span>
+            <!-- Container cho test chuột và điều hướng - nằm ngang với nhau -->
+            <div class="mouse-nav-container">
+                <!-- Khu vực test chuột - bên trái -->
+                <div class="mouse-test-area">
+                    <!-- Hàng trên: 3 nút trái, giữa, phải -->
+                    <div class="mouse-row">
+                        <div class="mouse-btn" id="mouse-left">
+                            <span class="btn-icon">🖱️</span>
+                            <span>Trái</span>
+                        </div>
+                        <div class="mouse-btn" id="mouse-middle">
+                            <span class="btn-icon">⚫</span>
+                            <span>Giữa</span>
+                        </div>
+                        <div class="mouse-btn" id="mouse-right">
+                            <span class="btn-icon">🖱️</span>
+                            <span>Phải</span>
+                        </div>
                     </div>
-                    <div class="mouse-btn" id="mouse-middle">
-                        <span class="btn-icon">⚫</span>
-                        <span>Giữa</span>
-                    </div>
-                    <div class="mouse-btn" id="mouse-right">
-                        <span class="btn-icon">🖱️</span>
-                        <span>Phải</span>
+                    
+                    <!-- Hàng dưới: 2 nút cuộn lên, cuộn xuống -->
+                    <div class="mouse-row">
+                        <div class="mouse-btn" id="scroll-up">
+                            <span class="btn-icon">⬆️</span>
+                            <span>Cuộn lên</span>
+                        </div>
+                        <div class="mouse-btn" id="scroll-down">
+                            <span class="btn-icon">⬇️</span>
+                            <span>Cuộn xuống</span>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Hàng dưới: 2 nút cuộn lên, cuộn xuống -->
-                <div class="mouse-row">
-                    <div class="mouse-btn" id="scroll-up">
-                        <span class="btn-icon">⬆️</span>
-                        <span>Cuộn lên</span>
+
+                <!-- Cụm điều hướng (mũi tên) - bên phải, nằm ngang với test chuột -->
+                <div class="nav-pad-compact">
+                    <div class="row" style="justify-content: center; margin-bottom: 5px;">
+                        <div class="key small" style="min-width: 60px;" data-key="ArrowUp">↑<br><span class="sub-label">Up</span></div>
                     </div>
-                    <div class="mouse-btn" id="scroll-down">
-                        <span class="btn-icon">⬇️</span>
-                        <span>Cuộn xuống</span>
+                    <div class="row" style="justify-content: center;">
+                        <div class="key small" style="min-width: 60px;" data-key="ArrowLeft">←<br><span class="sub-label">Left</span></div>
+                        <div class="key small" style="min-width: 60px;" data-key="ArrowDown">↓<br><span class="sub-label">Down</span></div>
+                        <div class="key small" style="min-width: 60px;" data-key="ArrowRight">→<br><span class="sub-label">Right</span></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Phần bên phải: keypad số và điều hướng -->
+        <!-- Phần bên phải: keypad số và các phím chức năng -->
         <div class="right-section">
             <!-- Nhóm PrtSc/ScrLk/Pause -->
             <div class="row" style="margin-bottom: 6px;">
@@ -394,18 +428,6 @@
                 <div class="row">
                     <div class="key small" data-key="Numpad0" style="flex: 2;">0<br><span class="sub-label">Ins</span></div>
                     <div class="key small" data-key="NumpadDecimal">.<br><span class="sub-label">Del</span></div>
-                </div>
-            </div>
-
-            <!-- Cụm điều hướng (mũi tên) -->
-            <div class="nav-pad">
-                <div class="row" style="justify-content: flex-end;">
-                    <div class="key small" style="min-width: 60px;" data-key="ArrowUp">↑<br><span class="sub-label">Up</span></div>
-                </div>
-                <div class="row" style="justify-content: flex-end;">
-                    <div class="key small" style="min-width: 60px;" data-key="ArrowLeft">←<br><span class="sub-label">Left</span></div>
-                    <div class="key small" style="min-width: 60px;" data-key="ArrowDown">↓<br><span class="sub-label">Down</span></div>
-                    <div class="key small" style="min-width: 60px;" data-key="ArrowRight">→<br><span class="sub-label">Right</span></div>
                 </div>
             </div>
         </div>
